@@ -54,9 +54,9 @@ class MLP(nn.Module):
         super(MLP, self).__init__()
         self.flatten = nn.Flatten() # For flattening the 2D image
         # Adjust hyperparameters (512, 256, 10) as necessary
-        self.fc1 = nn.Linear(32*32*3, 512)  # Input is image with shape (32x32)
-        self.fc2 = nn.Linear(512, 256)  # First HL
-        self.fc3= nn.Linear(256, 10) # Second HL
+        self.fc1 = nn.Linear(32*32*3, 1024)  # Input is image with shape (32x32)
+        self.fc2 = nn.Linear(1024, 512)  # First HL
+        self.fc3= nn.Linear(512, 24) # Second HL
         self.output = nn.LogSoftmax(dim=1)
 
     def forward(self, x):
@@ -131,7 +131,7 @@ def test(net, test_loader, device):
 mlp = MLP().to(device)
 
 # Adjust hyperparameters of LEARNING_RATE and MOMENTUM here
-LEARNING_RATE = 5e-4
+LEARNING_RATE = 10e-4
 MOMENTUM = 0.9
 
 # Define the loss function, optimizer, and learning rate scheduler
