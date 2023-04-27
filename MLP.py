@@ -131,7 +131,7 @@ def test(net, test_loader, device):
 mlp = MLP().to(device)
 
 # Adjust hyperparameters of LEARNING_RATE and MOMENTUM here
-LEARNING_RATE = 1e-4
+LEARNING_RATE = 5e-4
 MOMENTUM = 0.9
 
 # Define the loss function, optimizer, and learning rate scheduler
@@ -139,7 +139,7 @@ criterion = nn.NLLLoss()
 optimizer = optim.SGD(mlp.parameters(), lr=LEARNING_RATE, momentum=MOMENTUM)
 
 # Train the MLP for 5 epochs | should be trainable within 15 epochs for assignment
-for epoch in range(5):
+for epoch in range(10):
     train_loss = train(mlp, train_loader, criterion, optimizer, device)
     test_acc = test(mlp, test_loader, device)
     print(f"Epoch {epoch+1}: Train loss = {train_loss:.4f}, Test accuracy = {test_acc:.4f}")
