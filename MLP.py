@@ -6,19 +6,19 @@ import torchvision.transforms as transforms  # Subpackage that contains image tr
 transform = transforms.Compose([
     transforms.ToTensor(),  # Convert to Tensor
     # Normalize Image to [-1, 1] first number is mean, second is std deviation
-    transforms.Normalize((0.5,), (0.5,)) 
+    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)) 
 ])
 
-# Load MNIST dataset
+# Load CIFAR10 dataset
 # Train
-trainset = torchvision.datasets.MNIST(root='./data', train=True,
+trainset = torchvision.datasets.CIFAR10(root='./data', train=True,
                                       download=True, transform=transform)
 # Test
-testset = torchvision.datasets.MNIST(root='./data', train=False,
+testset = torchvision.datasets.CIFAR10(root='./data', train=False,
                                       download=True, transform=transform)
 
 # Send data to the data loaders
-BATCH_SIZE = 128
+BATCH_SIZE = 128 # EXPERIMENT WITH BATCH_SIZE
 train_loader = torch.utils.data.DataLoader(trainset, batch_size=BATCH_SIZE,
                                           shuffle=True)
 
@@ -53,7 +53,8 @@ class MLP(nn.Module):
     def __init__(self):
         super(MLP, self).__init__()
         self.flatten = nn.Flatten() # For flattening the 2D image
-        self.fc1 = nn.Linear(28*28, 512)  # Input is image with shape (28x28)
+        # Adjust hyperparameters (512, 256, 10) as necessary
+        self.fc1 = nn.Linear(32*32*3, 512)  # Input is image with shape (32x32)
         self.fc2 = nn.Linear(512, 256)  # First HL
         self.fc3= nn.Linear(256, 10) # Second HL
         self.output = nn.LogSoftmax(dim=1)
@@ -129,6 +130,7 @@ def test(net, test_loader, device):
 
 mlp = MLP().to(device)
 
+# Adjust hyperparameters of LEARNING_RATE and MOMENTUM here
 LEARNING_RATE = 1e-4
 MOMENTUM = 0.9
 
@@ -136,7 +138,7 @@ MOMENTUM = 0.9
 criterion = nn.NLLLoss()
 optimizer = optim.SGD(mlp.parameters(), lr=LEARNING_RATE, momentum=MOMENTUM)
 
-# Train the MLP for 5 epochs
+# Train the MLP for 5 epochs | should be trainable within 15 epochs for assignment
 for epoch in range(5):
     train_loss = train(mlp, train_loader, criterion, optimizer, device)
     test_acc = test(mlp, test_loader, device)
