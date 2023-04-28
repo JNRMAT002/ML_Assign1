@@ -27,21 +27,21 @@ test_loader = torch.utils.data.DataLoader(testset, batch_size=BATCH_SIZE,
 
 #############################################
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 examples = enumerate(test_loader)
 batch_idx, (example_data, example_targets) = next(examples)
 
 print(example_data.shape)
 
-fig = plt.figure()
-for i in range(6):
-    plt.subplot(2,3,i+1)
-    plt.tight_layout()
-    plt.imshow(example_data[i][0], cmap='gray', interpolation='none')
-    plt.title("Ground Truth: {}".format(example_targets[i]))
-    plt.xticks([])
-    plt.yticks([])
+# fig = plt.figure()
+# for i in range(6):
+#     plt.subplot(2,3,i+1)
+#     plt.tight_layout()
+#     plt.imshow(example_data[i][0], cmap='gray', interpolation='none')
+#     plt.title("Ground Truth: {}".format(example_targets[i]))
+#     plt.xticks([])
+#     plt.yticks([])
 
 #############################################
 
@@ -54,9 +54,9 @@ class MLP(nn.Module):
         super(MLP, self).__init__()
         self.flatten = nn.Flatten() # For flattening the 2D image
         # Adjust hyperparameters (512, 256, 10) as necessary
-        self.fc1 = nn.Linear(32*32*3, 1024)  # Input is image with shape (32x32)
-        self.fc2 = nn.Linear(1024, 512)  # First HL
-        self.fc3= nn.Linear(512, 256) # Second HL
+        self.fc1 = nn.Linear(32*32*3, 512)  # Input is image with shape (32x32)
+        self.fc2 = nn.Linear(512, 256)  # First HL
+        self.fc3= nn.Linear(256, 10) # Second HL
         self.output = nn.LogSoftmax(dim=1)
 
     def forward(self, x):
@@ -83,13 +83,13 @@ mlp = MLP().to(device)
 #############################################
 
 # Test on a batch of data
-with torch.no_grad():  # Don't accumlate gradients
-  mlp.eval()  # We are in evalutation mode
-  x = example_data.to(device)
-  outputs = mlp(x)  # Alias for mlp.forward
+# with torch.no_grad():  # Don't accumlate gradients
+#   mlp.eval()  # We are in evalutation mode
+#   x = example_data.to(device)
+#   outputs = mlp(x)  # Alias for mlp.forward
 
-  # Print example output.
-  print(torch.exp(outputs[0]))
+#   # Print example output.
+#   print(torch.exp(outputs[0]))
 
 #############################################
 
