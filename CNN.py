@@ -6,19 +6,19 @@ import torchvision.transforms as transforms  # Subpackage that contains image tr
 transform = transforms.Compose([
     transforms.ToTensor(),  # Convert to Tensor
     # Normalize Image to [-1, 1] first number is mean, second is std deviation
-    transforms.Normalize((0.5,), (0.5,)) 
+    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)) 
 ])
 
-# Load MNIST dataset
+# Load CIFAR10 dataset
 # Train
-trainset = torchvision.datasets.MNIST(root='./data', train=True,
+trainset = torchvision.datasets.CIFAR10(root='./data', train=True,
                                       download=True, transform=transform)
 # Test
-testset = torchvision.datasets.MNIST(root='./data', train=False,
+testset = torchvision.datasets.CIFAR10(root='./data', train=False,
                                       download=True, transform=transform)
 
 # Send data to the data loaders
-BATCH_SIZE = 128
+BATCH_SIZE = 128 # EXPERIMENT WITH BATCH_SIZE
 train_loader = torch.utils.data.DataLoader(trainset, batch_size=BATCH_SIZE,
                                           shuffle=True)
 
@@ -78,19 +78,25 @@ import torch.nn.functional as F # Activation Functions
 class CNN(nn.Module):
     def __init__(self):
         super(CNN, self).__init__()
-        self.conv1 = nn.Conv2d(1, 5, 3, padding=1) # First Conv Layer
-        self.pool = nn.MaxPool2d(2)  # For pooling
+        self.conv1 = nn.Conv2d(3, 6, kernel_size=5) # First Conv Layer | Filter size (i.e., kernel size) of 5x5, 3 Input channels, 6 output channels
+        self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)  # For pooling
+        self.conv2 = nn.Conv2d(6, 16, kernel_size=5) # Second Conv Layer | Filter size (i.e., kernel size) of 5x5, 6 Input channels, 16 output channels
+        self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)  # Second pooling layer
         self.flatten = nn.Flatten() # For flattening the 2D image
-        self.fc1 = nn.Linear(980, 256)  # First FC HL
-        self.fc2= nn.Linear(256, 10) # Output layer
+        self.fc1 = nn.Linear(400, 120)  # First FC HL
+        self.fc2 = nn.Linear(120, 84)  # Second FC HL
+        self.fc3= nn.Linear(84, 10) # Output layer
 
     def forward(self, x):
       # Batch x of shape (B, C, W, H)
       x = F.relu(self.conv1(x)) # Shape: (B, 5, 28, 28)
-      x = self.pool(x)  # Shape: (B, 5, 14, 14)
-      x = self.flatten(x) # Shape: (B, 980)
-      x = F.relu(self.fc1(x))  # Shape (B, 256)
-      x = self.fc2(x)  # Shape: (B, 10)
+      x = self.pool1(x)  # Shape: (B, 5, 14, 14)
+      x = F.relu(self.conv2(x)) # Shape: (B, 16, 10, 10)
+      x = self.pool2(x)  # Shape: (B, 16, 5, 5)
+      x = self.flatten(x) # Shape: (B, 400)
+      x = F.relu(self.fc1(x))  # Shape (B, 120)
+      x = F.relu(self.fc2(x))  # Shape (B, 84)
+      x = self.fc3(x)  # Shape: (B, 10)
       return x  
 
 #############################################
@@ -105,7 +111,7 @@ criterion = nn.CrossEntropyLoss() # Use this if not using softmax layer
 optimizer = optim.SGD(cnn.parameters(), lr=LEARNING_RATE, momentum=MOMENTUM)
 
 # Train the MLP for 5 epochs
-for epoch in range(5):
+for epoch in range(15):
     train_loss = train(cnn, train_loader, criterion, optimizer, device)
     test_acc = test(cnn, test_loader, device)
     print(f"Epoch {epoch+1}: Train loss = {train_loss:.4f}, Test accuracy = {test_acc:.4f}")
@@ -114,12 +120,11 @@ for epoch in range(5):
 
 # Test on a batch of data
 with torch.no_grad():  # Don't accumlate gradients
-  cnn.eval()  # We are in evalutation mode (i.e No dropout)
-  x = [data for data in test_loader][0][0].to(device)
-  outputs = cnn(x)  # Alias for cnn.forward
+    cnn.eval()  # We are in evalutation mode (i.e No dropout)
+    x = [data for data in test_loader][0][0].to(device)
+    outputs = cnn(x)  # Alias for cnn.forward
 
-  # Print example output.
-  print(outputs[0])
-  print(f'Prediction: {torch.max(outputs, 1)[1][0]}')
+    # Print example output.
+    print(outputs[0])
 
 #############################################
