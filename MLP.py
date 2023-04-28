@@ -18,7 +18,7 @@ testset = torchvision.datasets.CIFAR10(root='./data', train=False,
                                       download=True, transform=transform)
 
 # Send data to the data loaders
-BATCH_SIZE = 128 # EXPERIMENT WITH BATCH_SIZE
+BATCH_SIZE = 64 # EXPERIMENT WITH BATCH_SIZE
 train_loader = torch.utils.data.DataLoader(trainset, batch_size=BATCH_SIZE,
                                           shuffle=True)
 
@@ -27,23 +27,10 @@ test_loader = torch.utils.data.DataLoader(testset, batch_size=BATCH_SIZE,
 
 #############################################
 
-# import matplotlib.pyplot as plt
-
 examples = enumerate(test_loader)
 batch_idx, (example_data, example_targets) = next(examples)
 
 print(example_data.shape)
-
-# fig = plt.figure()
-# for i in range(6):
-#     plt.subplot(2,3,i+1)
-#     plt.tight_layout()
-#     plt.imshow(example_data[i][0], cmap='gray', interpolation='none')
-#     plt.title("Ground Truth: {}".format(example_targets[i]))
-#     plt.xticks([])
-#     plt.yticks([])
-
-#############################################
 
 import torch.nn as nn  # Layers
 import torch.nn.functional as F # Activation Functions
@@ -79,17 +66,6 @@ print(f"Using {device} device")
 
 # Creat the model and send its parameters to the appropriate device
 mlp = MLP().to(device)
-
-#############################################
-
-# Test on a batch of data
-# with torch.no_grad():  # Don't accumlate gradients
-#   mlp.eval()  # We are in evalutation mode
-#   x = example_data.to(device)
-#   outputs = mlp(x)  # Alias for mlp.forward
-
-#   # Print example output.
-#   print(torch.exp(outputs[0]))
 
 #############################################
 
@@ -144,6 +120,8 @@ for epoch in range(15):
     test_acc = test(mlp, test_loader, device)
     print(f"Epoch {epoch+1}: Train loss = {train_loss:.4f}, Test accuracy = {test_acc:.4f}")
 
+    if (test_acc > 0.58):
+        break
 #############################################
 
 # Test on a batch of data
