@@ -56,7 +56,7 @@ class MLP(nn.Module):
         # Adjust hyperparameters (512, 256, 10) as necessary
         self.fc1 = nn.Linear(32*32*3, 1024)  # Input is image with shape (32x32)
         self.fc2 = nn.Linear(1024, 512)  # First HL
-        self.fc3= nn.Linear(512, 24) # Second HL
+        self.fc3= nn.Linear(512, 256) # Second HL
         self.output = nn.LogSoftmax(dim=1)
 
     def forward(self, x):
@@ -131,7 +131,7 @@ def test(net, test_loader, device):
 mlp = MLP().to(device)
 
 # Adjust hyperparameters of LEARNING_RATE and MOMENTUM here
-LEARNING_RATE = 10e-4
+LEARNING_RATE = 15e-4
 MOMENTUM = 0.9
 
 # Define the loss function, optimizer, and learning rate scheduler
@@ -139,7 +139,7 @@ criterion = nn.NLLLoss()
 optimizer = optim.SGD(mlp.parameters(), lr=LEARNING_RATE, momentum=MOMENTUM)
 
 # Train the MLP for 5 epochs | should be trainable within 15 epochs for assignment
-for epoch in range(10):
+for epoch in range(15):
     train_loss = train(mlp, train_loader, criterion, optimizer, device)
     test_acc = test(mlp, test_loader, device)
     print(f"Epoch {epoch+1}: Train loss = {train_loss:.4f}, Test accuracy = {test_acc:.4f}")
@@ -154,4 +154,3 @@ with torch.no_grad():  # Don't accumlate gradients
 
   # Print example output.
   print(torch.exp(outputs[0]))
-  print(f'Prediction: {torch.max(outputs, 1)[1][0]}')
