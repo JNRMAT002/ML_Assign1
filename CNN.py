@@ -84,6 +84,7 @@ class CNN(nn.Module):
         self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)  # Second pooling layer
         self.flatten = nn.Flatten() # For flattening the 2D image
         self.fc1 = nn.Linear(400, 120)  # First FC HL
+        # self.dropout = nn.Dropout(p=0.5) # adding dropout layer
         self.fc2 = nn.Linear(120, 84)  # Second FC HL
         self.fc3= nn.Linear(84, 10) # Output layer
 
@@ -94,6 +95,7 @@ class CNN(nn.Module):
       x = F.relu(self.conv2(x)) # Shape: (B, 16, 10, 10)
       x = self.pool2(x)  # Shape: (B, 16, 5, 5)
       x = self.flatten(x) # Shape: (B, 400)
+    #   x = self.dropout(x)  # applying dropout layer
       x = F.relu(self.fc1(x))  # Shape (B, 120)
       x = F.relu(self.fc2(x))  # Shape (B, 84)
       x = self.fc3(x)  # Shape: (B, 10)
@@ -103,8 +105,8 @@ class CNN(nn.Module):
 
 cnn = CNN().to(device)
 
-LEARNING_RATE = 1e-1
-MOMENTUM = 0.9
+LEARNING_RATE = 1e-2
+MOMENTUM = 0.95
 
 # Define the loss function, optimizer, and learning rate scheduler
 criterion = nn.CrossEntropyLoss() # Use this if not using softmax layer
@@ -115,6 +117,8 @@ for epoch in range(15):
     train_loss = train(cnn, train_loader, criterion, optimizer, device)
     test_acc = test(cnn, test_loader, device)
     print(f"Epoch {epoch+1}: Train loss = {train_loss:.4f}, Test accuracy = {test_acc:.4f}")
+    if (test_acc > 0.65):
+        break
 
 #############################################
 
